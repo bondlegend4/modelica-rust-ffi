@@ -1,0 +1,3 @@
+[submodule "space-colony-modelica-core"]
+	path = space-colony-modelica-core
+	url = https://github.com/bondlegend4/space-colony-modelica-core.git
