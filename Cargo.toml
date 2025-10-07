@@ -1,0 +1,16 @@
+[package]
+name = "modelica-rust-ffi"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+libc = "0.2"
+thiserror = "1.0"
+uuid = { version = "1.0", features = ["v4"] }
+
+[build-dependencies]
+bindgen = "0.70"
+cc = "1.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
