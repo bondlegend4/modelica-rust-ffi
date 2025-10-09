@@ -8,14 +8,19 @@ Provides safe Rust bindings to compiled Modelica components. Creates a component
 ```
 modelica-rust-ffi/
 ├── Cargo.toml
+├──README.md
 ├── build.rs                      # Build script (compiles C, generates bindings)
 ├── src/
-│   ├── lib.rs                   # Public API
+│   ├── components/
+│   │   ├── mod.rs
+│   │   └── simple_thermal.rs    # SimpleThermalMVP wrapper
+│   ├── runtime/
+│   │   ├── modelica_runtime.rs
+│   │   ├── mods.rs
+│   │   └── README.md
 │   ├── component.rs             # SimulationComponent trait
 │   ├── registry.rs              # ComponentRegistry
-│   └── components/
-│       ├── mod.rs
-│       └── simple_thermal.rs    # SimpleThermalMVP wrapper
+│   └── lib.rs                   # Public API
 ├── space-colony-modelica-core/  # Git submodule (source of truth)
 ├── include/                      # Generated headers (build artifacts)
 └── target/                       # Compiled output
