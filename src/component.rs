@@ -14,6 +14,21 @@ pub enum ComponentError {
     
     #[error("Invalid output: {0}")]
     InvalidOutput(String),
+    
+    #[error("Memory allocation failed: {0}")]
+    MemoryError(String),
+    
+    #[error("OpenModelica runtime error: {0}")]
+    RuntimeError(String),
+    
+    #[error("Variable '{0}' not found")]
+    VariableNotFound(String),
+    
+    #[error("Variable '{0}' bounds check failed: value {1} out of range [{2}, {3}]")]
+    BoundsCheckFailed(String, f64, f64, f64),
+    
+    #[error("Thread safety violation: {0}")]
+    ThreadSafetyError(String),
 }
 
 pub type ComponentResult<T> = Result<T, ComponentError>;

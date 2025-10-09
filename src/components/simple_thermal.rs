@@ -1,23 +1,16 @@
 use crate::component::*;
+use crate::runtime::ModelicaRuntime;
 use std::collections::HashMap;
 
-// Include generated bindings
-include!(concat!(env!("OUT_DIR"), "/simplethermalmvp_bindings.rs"));
-
 pub struct SimpleThermalComponent {
-    // Cached values (using Rust simulation for now)
-    temperature: f64,
-    heater_status: f64,
-    heater_on: bool,
+    runtime: ModelicaRuntime,
 }
 
 impl SimpleThermalComponent {
-    pub fn new() -> Self {
-        Self {
-            temperature: 250.0,
-            heater_status: 0.0,
-            heater_on: false,
-        }
+    pub fn new() -> ComponentResult<Self> {
+        Ok(Self {
+            runtime: ModelicaRuntime::new("SimpleThermalMVP")?,
+        })
     }
 }
 
@@ -27,69 +20,37 @@ impl SimulationComponent for SimpleThermalComponent {
     }
     
     fn initialize(&mut self) -> ComponentResult<()> {
-        self.temperature = 250.0;
-        self.heater_status = 0.0;
-        self.heater_on = false;
-        Ok(())
+        self.runtime.reset()
     }
     
-    fn set_input(&mut self, name: &str, _value: f64) -> ComponentResult<()> {
-        Err(ComponentError::InvalidInput(
-            format!("SimpleThermal has no real inputs. Got: {}", name)
-        ))
+    fn set_input(&mut self, name: &str, value: f64) -> ComponentResult<()> {
+        self.runtime.set_real_variable(name, value)
     }
     
     fn set_bool_input(&mut self, name: &str, value: bool) -> ComponentResult<()> {
-        match name {
-            "heaterOn" => {
-                self.heater_on = value;
-                Ok(())
-            }
-            _ => Err(ComponentError::InvalidInput(
-                format!("Unknown boolean input: {}", name)
-            ))
-        }
+        self.runtime.set_bool_variable(name, value)
     }
     
     fn get_output(&self, name: &str) -> ComponentResult<f64> {
-        match name {
-            "temperature" => Ok(self.temperature),
-            "heaterStatus" => Ok(self.heater_status),
-            _ => Err(ComponentError::InvalidOutput(
-                format!("Unknown output: {}", name)
-            ))
-        }
+        self.runtime.get_real_variable(name)
     }
     
     fn step(&mut self, dt: f64) -> ComponentResult<()> {
-        // Simple Euler integration (Rust implementation for now)
-        let room_capacity = 1000.0;
-        let ambient_temp = 250.0;
-        let heater_power = 500.0;
-        let loss_coefficient = 2.0;
-        
-        let heating = if self.heater_on { heater_power } else { 0.0 };
-        let losses = loss_coefficient * (self.temperature - ambient_temp);
-        
-        let d_temp = (heating - losses) / room_capacity * dt;
-        self.temperature += d_temp;
-        
-        self.heater_status = if self.heater_on { 1.0 } else { 0.0 };
-        
-        Ok(())
+        self.runtime.step(dt)
     }
     
     fn reset(&mut self) -> ComponentResult<()> {
-        self.temperature = 250.0;
-        self.heater_status = 0.0;
-        self.heater_on = false;
-        Ok(())
+        self.runtime.reset()
     }
     
     fn get_all_outputs(&self) -> HashMap<String, f64> {
         let mut outputs = HashMap::new();
-        outputs.insert("temperature".to_string(), self.temperature);
-        outputs.insert("heaterStatus".to_string(), self.heater_status);
+        if let Ok(temp) = self.runtime.get_real_variable("temperature") {
+            outputs.insert("temperature".to_string(), temp);
+        }
+        if let Ok(status) = self.runtime.get_real_variable("heaterStatus") {
+            outputs.insert("heaterStatus".to_string(), status);
+        }
         outputs
     }
     

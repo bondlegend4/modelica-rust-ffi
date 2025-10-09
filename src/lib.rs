@@ -3,10 +3,12 @@
 
 pub mod component;
 pub mod registry;
+pub mod runtime;  // Add this
 pub mod components;
 
 pub use component::{SimulationComponent, ComponentError, ComponentResult, ComponentMetadata, IOSpec, IOType};
 pub use registry::ComponentRegistry;
+pub use runtime::ModelicaRuntime;  // Add this
 pub use components::simple_thermal::SimpleThermalComponent;
 
 #[cfg(test)]
@@ -15,7 +17,7 @@ mod tests {
     
     #[test]
     fn test_simple_thermal() {
-        let mut component = SimpleThermalComponent::new();
+        let mut component = SimpleThermalComponent::new().unwrap();  // Add .unwrap()
         component.initialize().unwrap();
         
         // Test initial state
@@ -37,7 +39,7 @@ mod tests {
     fn test_registry() {
         let mut registry = ComponentRegistry::new();
         
-        let component = Box::new(SimpleThermalComponent::new());
+        let component = Box::new(SimpleThermalComponent::new().unwrap());  // Add .unwrap()
         let id = registry.add("thermal_1".to_string(), component).unwrap();
         
         // Access by name
