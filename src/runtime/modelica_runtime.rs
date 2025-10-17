@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 use crate::component::{ComponentError, ComponentResult};
 use std::collections::HashMap;
 // Include the generated bindings
