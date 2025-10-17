@@ -14,3 +14,10 @@ cc = "1.0"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
+
+[dev-dependencies]
+tokio-test = "0.4"
+
+[[example]]
+name = "simple_client"
+path = "examples/simple_client.rs"

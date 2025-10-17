@@ -4,22 +4,33 @@ use std::path::PathBuf;
 fn main() {
     let omc_base = "/Applications/OpenModelica/build_cmake/install_cmake";
     let omc_lib = format!("{}/lib", omc_base);
+    let omc_lib_omc = format!("{}/lib/omc", omc_base);  // ADD THIS - where .dylib files are
     let omc_include = format!("{}/include/omc/c", omc_base);
     let omc_gc_include = format!("{}/include/omc/gc", omc_base);
     
-    // Link OpenModelica runtime
-    println!("cargo:rustc-link-search=native={}/omc", omc_lib);
-    println!("cargo:rustc-link-search=native={}", omc_lib);
+    // Link OpenModelica runtime - search in BOTH lib and lib/omc
+    println!("cargo:rustc-link-search=native={}", omc_lib_omc);  // PRIMARY - .dylib location
+    println!("cargo:rustc-link-search=native={}", omc_lib);      // SECONDARY - for other libs
+    
     println!("cargo:rustc-link-lib=dylib=SimulationRuntimeC");
     println!("cargo:rustc-link-lib=dylib=OpenModelicaRuntimeC");
     println!("cargo:rustc-link-lib=dylib=omcgc");
     println!("cargo:rustc-link-lib=dylib=lapack");
     println!("cargo:rustc-link-lib=dylib=blas");
-    println!("cargo:rustc-link-lib=dylib=pthread");  // ADD THIS
-    
-    // Set rpath for macOS
-    println!("cargo:rustc-link-arg=-Wl,-rpath,{}/omc", omc_lib);
-    println!("cargo:rustc-link-arg=-Wl,-rpath,{}", omc_lib);
+    println!("cargo:rustc-link-lib=pthread");
+
+    // Add rpath for BOTH directories
+    #[cfg(target_os = "macos")]
+    {
+        println!("cargo:rustc-link-arg=-Wl,-rpath,{}", omc_lib_omc);
+        println!("cargo:rustc-link-arg=-Wl,-rpath,{}", omc_lib);
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        println!("cargo:rustc-link-arg=-Wl,-rpath,{}", omc_lib_omc);
+        println!("cargo:rustc-link-arg=-Wl,-rpath,{}", omc_lib);
+    }
     
     // Path to Modelica core (submodule)
     let modelica_core = PathBuf::from("space-colony-modelica-core");
@@ -31,6 +42,7 @@ fn main() {
     generate_bindings(&modelica_core, "SimpleThermalMVP", &omc_include, &omc_gc_include);
 }
 
+// Rest of the code stays the same...
 fn compile_component(
     modelica_core: &PathBuf, 
     component_name: &str,

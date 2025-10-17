@@ -234,8 +234,10 @@ Update these if your OpenModelica is installed elsewhere.
 # Run all tests
 cargo test
 
+cargo test --test modbus_client_test -- --nocapture
+
 # Run specific test
-cargo test test_simple_thermal
+# cargo test test_simple_thermal
 
 # With output
 cargo test -- --nocapture
